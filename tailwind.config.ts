@@ -59,7 +59,13 @@ export default {
         },
       },
       fontFamily: {
-        heading: ["Poppins", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: [
+          "Poppins",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
         body: [
           "Open Sans",
           "Roboto",

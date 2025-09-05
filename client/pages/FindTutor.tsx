@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +14,10 @@ import { Star } from "lucide-react";
 
 const tutors = Array.from({ length: 12 }).map((_, i) => ({
   id: i + 1,
-  name: ["Ananya", "Rohit", "Priya", "Vikram", "Meera"][i % 5] + " "+ ["Sharma", "Gupta", "Iyer", "Khan", "Das"][i % 5],
+  name:
+    ["Ananya", "Rohit", "Priya", "Vikram", "Meera"][i % 5] +
+    " " +
+    ["Sharma", "Gupta", "Iyer", "Khan", "Das"][i % 5],
   subject: ["Math", "Physics", "Chemistry", "Biology", "English"][i % 5],
   rating: 4 + (i % 2),
   price: 10 + i,
@@ -23,14 +32,26 @@ export default function FindTutor() {
         <h3 className="font-semibold">Filters</h3>
         <div className="mt-4 space-y-4 text-sm">
           <div>
-            <label className="mb-1 block text-foreground/70">Price range ($/hr)</label>
-            <Slider value={price} onValueChange={setPrice} min={10} max={100} step={5} />
-            <div className="mt-1 text-xs text-foreground/60">Up to ${price[0]}/hr</div>
+            <label className="mb-1 block text-foreground/70">
+              Price range ($/hr)
+            </label>
+            <Slider
+              value={price}
+              onValueChange={setPrice}
+              min={10}
+              max={100}
+              step={5}
+            />
+            <div className="mt-1 text-xs text-foreground/60">
+              Up to ${price[0]}/hr
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-foreground/70">Rating</label>
             <Select defaultValue="4+">
-              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="4+">4+ stars</SelectItem>
@@ -41,7 +62,9 @@ export default function FindTutor() {
           <div>
             <label className="mb-1 block text-foreground/70">Experience</label>
             <Select defaultValue=">=2">
-              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value=">=2">2+ years</SelectItem>
                 <SelectItem value=">=5">5+ years</SelectItem>
@@ -67,7 +90,9 @@ export default function FindTutor() {
                 <SelectItem value="evening">Evenings</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Search</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+              Search
+            </Button>
           </div>
         </div>
 
@@ -79,7 +104,9 @@ export default function FindTutor() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between text-lg">
                     <span>{t.name}</span>
-                    <span className="text-sm text-foreground/60">${t.price}/hr</span>
+                    <span className="text-sm text-foreground/60">
+                      ${t.price}/hr
+                    </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

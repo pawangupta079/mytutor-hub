@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Payment() {
   return (
@@ -14,17 +20,25 @@ export default function Payment() {
           </CardHeader>
           <CardContent className="grid gap-4">
             <div>
-              <label className="mb-1 block text-sm text-foreground/70">Tutor Name</label>
+              <label className="mb-1 block text-sm text-foreground/70">
+                Tutor Name
+              </label>
               <Input defaultValue="Ananya Sharma" />
             </div>
             <div>
-              <label className="mb-1 block text-sm text-foreground/70">Session Price</label>
+              <label className="mb-1 block text-sm text-foreground/70">
+                Session Price
+              </label>
               <Input defaultValue="$30.00" />
             </div>
             <div>
-              <label className="mb-1 block text-sm text-foreground/70">Payment Method</label>
+              <label className="mb-1 block text-sm text-foreground/70">
+                Payment Method
+              </label>
               <Select>
-                <SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select method" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="stripe">Stripe (Card)</SelectItem>
                   <SelectItem value="paypal">PayPal</SelectItem>

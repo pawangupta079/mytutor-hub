@@ -1,9 +1,22 @@
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-const slots = ["9:00 AM","10:00 AM","11:00 AM","2:00 PM","4:00 PM","6:00 PM"];
+const slots = [
+  "9:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "2:00 PM",
+  "4:00 PM",
+  "6:00 PM",
+];
 
 export default function Scheduling() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -13,9 +26,16 @@ export default function Scheduling() {
     <main className="container grid gap-6 py-10 md:grid-cols-[1fr_1fr]">
       <section>
         <h1 className="text-3xl font-bold">Session Scheduling</h1>
-        <p className="mt-1 text-foreground/70">Pick a date and choose an available slot.</p>
+        <p className="mt-1 text-foreground/70">
+          Pick a date and choose an available slot.
+        </p>
         <div className="mt-6 rounded-lg border p-4">
-          <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+          />
         </div>
       </section>
 
@@ -25,7 +45,12 @@ export default function Scheduling() {
           {slots.map((s) => (
             <Dialog key={s}>
               <DialogTrigger asChild>
-                <Button variant={selected === s ? "default" : "outline"} onClick={() => setSelected(s)}>{s}</Button>
+                <Button
+                  variant={selected === s ? "default" : "outline"}
+                  onClick={() => setSelected(s)}
+                >
+                  {s}
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>

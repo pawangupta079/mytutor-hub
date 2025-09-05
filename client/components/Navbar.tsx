@@ -23,12 +23,26 @@ export default function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-white shadow-md">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 17L10 7L14 13L20 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 17L10 7L14 13L20 3"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
               <circle cx="20" cy="3" r="2" fill="currentColor" />
             </svg>
           </div>
-          <span className="text-lg font-bold tracking-tight text-foreground">My_Offline_Tutor</span>
+          <span className="text-lg font-bold tracking-tight text-foreground">
+            My_Offline_Tutor
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -39,7 +53,7 @@ export default function Navbar() {
               className={({ isActive }) =>
                 cn(
                   "text-sm font-medium transition-colors hover:text-primary",
-                  isActive ? "text-primary" : "text-foreground/70"
+                  isActive ? "text-primary" : "text-foreground/70",
                 )
               }
             >
@@ -49,8 +63,15 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" className="text-foreground/80 hover:text-foreground">Log in</Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Sign up</Button>
+          <Button
+            variant="ghost"
+            className="text-foreground/80 hover:text-foreground"
+          >
+            Log in
+          </Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            Sign up
+          </Button>
         </div>
 
         <button
@@ -74,7 +95,7 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   cn(
                     "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                    isActive ? "text-primary" : "text-foreground/80"
+                    isActive ? "text-primary" : "text-foreground/80",
                   )
                 }
               >
@@ -82,7 +103,9 @@ export default function Navbar() {
               </NavLink>
             ))}
             <div className="mt-2 flex gap-2">
-              <Button variant="outline" className="flex-1">Log in</Button>
+              <Button variant="outline" className="flex-1">
+                Log in
+              </Button>
               <Button className="flex-1">Sign up</Button>
             </div>
           </div>

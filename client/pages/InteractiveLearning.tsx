@@ -87,7 +87,9 @@ export default function InteractiveLearning() {
           </CardHeader>
           <CardContent>
             <div className="h-64 overflow-y-auto rounded-md border p-3 text-sm">
-              <p className="text-foreground/60">Welcome to the session! Ask questions here.</p>
+              <p className="text-foreground/60">
+                Welcome to the session! Ask questions here.
+              </p>
             </div>
             <div className="mt-3 flex gap-2">
               <Input placeholder="Type your message" />

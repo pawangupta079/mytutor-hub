@@ -1,30 +1,40 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { CheckCircle2, Calendar, ShieldCheck, Video, Search, Star } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
+  CheckCircle2,
+  Calendar,
+  ShieldCheck,
+  Video,
+  Search,
+  Star,
+} from "lucide-react";
 
 export default function Index() {
   const testimonials = [
     {
       name: "Aarav S.",
       role: "Class 10 Student",
-      text:
-        "Found a great Math tutor and improved two grades in a month. Scheduling and tracking are super easy!",
+      text: "Found a great Math tutor and improved two grades in a month. Scheduling and tracking are super easy!",
       rating: 5,
     },
     {
       name: "Neha K.",
       role: "Parent",
-      text:
-        "The platform is intuitive. Loved the secure payments and progress analytics for my daughter.",
+      text: "The platform is intuitive. Loved the secure payments and progress analytics for my daughter.",
       rating: 5,
     },
     {
       name: "Rohan M.",
       role: "Physics Tutor",
-      text:
-        "As a tutor, managing availability and sessions is seamless. Earnings dashboard is very clear.",
+      text: "As a tutor, managing availability and sessions is seamless. Earnings dashboard is very clear.",
       rating: 5,
     },
   ];
@@ -36,16 +46,27 @@ export default function Index() {
         <div className="container grid items-center gap-10 py-20 md:grid-cols-2">
           <div>
             <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-              Learn Smarter with <span className="text-primary">Expert Tutors</span>
+              Learn Smarter with{" "}
+              <span className="text-primary">Expert Tutors</span>
             </h1>
             <p className="mt-4 max-w-xl text-lg text-foreground/70">
-              Discover top tutors, book sessions effortlessly, and track your learning journey — all in one place.
+              Discover top tutors, book sessions effortlessly, and track your
+              learning journey — all in one place.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary hover:bg-primary/90"
+              >
                 <Link to="/find-tutor">Find a Tutor</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10"
+              >
                 <Link to="/register-tutor">Register as Tutor</Link>
               </Button>
             </div>
@@ -68,7 +89,9 @@ export default function Index() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold">Easy Scheduling</p>
-                  <p className="text-xs text-foreground/60">Book in a few taps</p>
+                  <p className="text-xs text-foreground/60">
+                    Book in a few taps
+                  </p>
                 </div>
               </div>
             </div>
@@ -79,8 +102,13 @@ export default function Index() {
       {/* Features */}
       <section className="container py-16">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold">Everything you need to learn efficiently</h2>
-          <p className="mt-2 text-foreground/70">Powerful features to discover tutors, book sessions, and learn interactively.</p>
+          <h2 className="text-3xl font-bold">
+            Everything you need to learn efficiently
+          </h2>
+          <p className="mt-2 text-foreground/70">
+            Powerful features to discover tutors, book sessions, and learn
+            interactively.
+          </p>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
@@ -91,7 +119,8 @@ export default function Index() {
               <CardTitle className="mt-2 text-xl">Tutor Search</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-foreground/70">
-              Find tutors by subject, location, rating, and price to match your goals.
+              Find tutors by subject, location, rating, and price to match your
+              goals.
             </CardContent>
           </Card>
           <Card>
@@ -99,7 +128,9 @@ export default function Index() {
               <div className="grid h-12 w-12 place-items-center rounded-lg bg-primary/10 text-primary">
                 <Video />
               </div>
-              <CardTitle className="mt-2 text-xl">Interactive Learning</CardTitle>
+              <CardTitle className="mt-2 text-xl">
+                Interactive Learning
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-foreground/70">
               Engage through video, whiteboard tools, and real-time chat.
@@ -136,12 +167,31 @@ export default function Index() {
           <h2 className="text-3xl font-bold">How it works</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-4">
             {[
-              { step: 1, title: "Search Tutor", desc: "Filter by subject, price, and rating" },
-              { step: 2, title: "Book Session", desc: "Pick a slot that fits your schedule" },
-              { step: 3, title: "Learn Online", desc: "Interact via video, whiteboard, and chat" },
-              { step: 4, title: "Track Progress", desc: "See analytics and performance over time" },
+              {
+                step: 1,
+                title: "Search Tutor",
+                desc: "Filter by subject, price, and rating",
+              },
+              {
+                step: 2,
+                title: "Book Session",
+                desc: "Pick a slot that fits your schedule",
+              },
+              {
+                step: 3,
+                title: "Learn Online",
+                desc: "Interact via video, whiteboard, and chat",
+              },
+              {
+                step: 4,
+                title: "Track Progress",
+                desc: "See analytics and performance over time",
+              },
             ].map((s) => (
-              <div key={s.step} className="relative rounded-lg border bg-background p-6">
+              <div
+                key={s.step}
+                className="relative rounded-lg border bg-background p-6"
+              >
                 <div className="absolute -top-3 left-6 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground shadow">
                   {s.step}
                 </div>
@@ -157,7 +207,9 @@ export default function Index() {
       <section className="container py-16">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold">Loved by students and tutors</h2>
-          <p className="mt-2 text-foreground/70">Real stories from our community</p>
+          <p className="mt-2 text-foreground/70">
+            Real stories from our community
+          </p>
         </div>
         <div className="mt-10">
           <Carousel>
@@ -194,13 +246,24 @@ export default function Index() {
         <div className="container grid items-center gap-8 md:grid-cols-2">
           <div>
             <h3 className="text-2xl font-bold">Join 1000+ learners today!</h3>
-            <p className="mt-2 text-foreground/70">Start your learning journey with personalized tutoring.</p>
+            <p className="mt-2 text-foreground/70">
+              Start your learning journey with personalized tutoring.
+            </p>
           </div>
           <div className="flex gap-3 md:justify-end">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary hover:bg-primary/90"
+            >
               <Link to="/find-tutor">Find a Tutor</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary/10"
+            >
               <Link to="/register-tutor">Register as Tutor</Link>
             </Button>
           </div>
