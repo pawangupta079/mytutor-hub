@@ -58,6 +58,16 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontFamily: {
+        heading: ["Poppins", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: [
+          "Open Sans",
+          "Roboto",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
