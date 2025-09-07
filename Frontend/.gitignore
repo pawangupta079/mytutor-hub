@@ -25,3 +25,8 @@ dist-ssr
 
 .config/
 !.env
+node_modules
+.env
+.env.test
+.env.production
+
