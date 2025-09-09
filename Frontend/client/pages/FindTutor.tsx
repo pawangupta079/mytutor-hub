@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,21 +11,75 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, Search, Loader2 } from "lucide-react";
+import { apiClient } from "../../shared/api";
+import { useNavigate } from "react-router-dom";
 
-const tutors = Array.from({ length: 12 }).map((_, i) => ({
-  id: i + 1,
-  name:
-    ["Ananya", "Rohit", "Priya", "Vikram", "Meera"][i % 5] +
-    " " +
-    ["Sharma", "Gupta", "Iyer", "Khan", "Das"][i % 5],
-  subject: ["Math", "Physics", "Chemistry", "Biology", "English"][i % 5],
-  rating: 4 + (i % 2),
-  price: 10 + i,
-}));
+interface Tutor {
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    avatar?: string;
+  };
+  subjects: Array<{
+    subject: string;
+    level: string;
+    hourlyRate: number;
+  }>;
+  rating: {
+    average: number;
+    count: number;
+  };
+  bio?: string;
+  experience: {
+    years: number;
+    description: string;
+  };
+}
 
 export default function FindTutor() {
-  const [price, setPrice] = useState([30]);
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState({
+    subject: '',
+    level: '',
+    minPrice: 0,
+    maxPrice: 100,
+    minRating: 0,
+    location: '',
+    page: 1,
+    limit: 12
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['tutors', filters],
+    queryFn: () => apiClient.searchTutors(filters),
+    enabled: true
+  });
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: 1 // Reset to first page when filters change
+    }));
+  };
+
+  const handleSearch = () => {
+    setFilters(prev => ({
+      ...prev,
+      subject: searchQuery,
+      page: 1
+    }));
+  };
+
+  const handleBookTutor = (tutorId: string) => {
+    navigate(`/book-session/${tutorId}`);
+  };
+
+  const tutors = data?.data?.tutors || [];
+  const pagination = data?.data?.pagination;
 
   return (
     <main className="container grid gap-8 py-10 md:grid-cols-[280px_1fr]">
@@ -36,39 +91,51 @@ export default function FindTutor() {
               Price range ($/hr)
             </label>
             <Slider
-              value={price}
-              onValueChange={setPrice}
-              min={10}
-              max={100}
+              value={[filters.minPrice, filters.maxPrice]}
+              onValueChange={([min, max]) => {
+                handleFilterChange('minPrice', min);
+                handleFilterChange('maxPrice', max);
+              }}
+              min={0}
+              max={200}
               step={5}
             />
             <div className="mt-1 text-xs text-foreground/60">
-              Up to ${price[0]}/hr
+              ${filters.minPrice} - ${filters.maxPrice}/hr
             </div>
           </div>
           <div>
             <label className="mb-1 block text-foreground/70">Rating</label>
-            <Select defaultValue="4+">
+            <Select 
+              value={filters.minRating.toString()} 
+              onValueChange={(value) => handleFilterChange('minRating', parseFloat(value))}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="4+">4+ stars</SelectItem>
-                <SelectItem value="5">5 stars</SelectItem>
+                <SelectItem value="0">All</SelectItem>
+                <SelectItem value="3">3+ stars</SelectItem>
+                <SelectItem value="4">4+ stars</SelectItem>
+                <SelectItem value="4.5">4.5+ stars</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <label className="mb-1 block text-foreground/70">Experience</label>
-            <Select defaultValue=">=2">
+            <label className="mb-1 block text-foreground/70">Level</label>
+            <Select 
+              value={filters.level} 
+              onValueChange={(value) => handleFilterChange('level', value)}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder="All levels" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=">=2">2+ years</SelectItem>
-                <SelectItem value=">=5">5+ years</SelectItem>
-                <SelectItem value=">=10">10+ years</SelectItem>
+                <SelectItem value="">All levels</SelectItem>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="expert">Expert</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -78,51 +145,151 @@ export default function FindTutor() {
       <section>
         <div className="rounded-lg border bg-white p-5">
           <div className="grid gap-3 md:grid-cols-4">
-            <Input placeholder="Subject (e.g., Math)" />
-            <Input placeholder="Location (e.g., Delhi)" />
-            <Select>
+            <Input 
+              placeholder="Subject (e.g., Math)" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <Input 
+              placeholder="Location (e.g., Delhi)" 
+              value={filters.location}
+              onChange={(e) => handleFilterChange('location', e.target.value)}
+            />
+            <Select 
+              value={filters.level} 
+              onValueChange={(value) => handleFilterChange('level', value)}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Availability" />
+                <SelectValue placeholder="Level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="weekday">Weekdays</SelectItem>
-                <SelectItem value="weekend">Weekends</SelectItem>
-                <SelectItem value="evening">Evenings</SelectItem>
+                <SelectItem value="">All levels</SelectItem>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="expert">Expert</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button 
+              onClick={handleSearch}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Search className="mr-2 h-4 w-4" />
               Search
             </Button>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {tutors
-            .filter((t) => t.price <= price[0])
-            .map((t) => (
-              <Card key={t.id} className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-lg">
-                    <span>{t.name}</span>
-                    <span className="text-sm text-foreground/60">
-                      ${t.price}/hr
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-foreground/70">
-                    <span>{t.subject}</span>
-                    <span className="flex items-center gap-1 text-secondary">
-                      {Array.from({ length: t.rating }).map((_, i) => (
-                        <Star key={i} size={14} fill="currentColor" />
-                      ))}
-                    </span>
-                  </div>
-                  <Button className="mt-4 w-full">Book Now</Button>
-                </CardContent>
-              </Card>
-            ))}
-        </div>
+        {isLoading ? (
+          <div className="mt-6 flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600">Searching for tutors...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="mt-6 text-center py-12">
+            <p className="text-red-600">Error loading tutors. Please try again.</p>
+            <Button onClick={() => refetch()} className="mt-4">
+              Retry
+            </Button>
+          </div>
+        ) : tutors.length === 0 ? (
+          <div className="mt-6 text-center py-12">
+            <p className="text-gray-600">No tutors found matching your criteria.</p>
+          </div>
+        ) : (
+          <>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {tutors.map((tutor: Tutor) => {
+                const primarySubject = tutor.subjects[0];
+                const hourlyRate = primarySubject?.hourlyRate || 0;
+                
+                return (
+                  <Card key={tutor._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          {tutor.user.avatar ? (
+                            <img 
+                              src={tutor.user.avatar} 
+                              alt={tutor.user.name}
+                              className="h-12 w-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-primary font-semibold">
+                              {tutor.user.name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">{tutor.user.name}</CardTitle>
+                          <p className="text-sm text-foreground/60">
+                            {tutor.experience.years} years experience
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm text-foreground/60">
+                          {primarySubject?.subject} • {primarySubject?.level}
+                        </span>
+                        <span className="text-sm font-semibold text-primary">
+                          ${hourlyRate}/hr
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {tutor.bio && (
+                        <p className="text-sm text-foreground/70 mb-3 line-clamp-2">
+                          {tutor.bio}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between text-sm mb-4">
+                        <div className="flex items-center gap-1">
+                          <Star size={14} fill="currentColor" className="text-yellow-400" />
+                          <span className="font-medium">{tutor.rating.average.toFixed(1)}</span>
+                          <span className="text-foreground/60">({tutor.rating.count})</span>
+                        </div>
+                        <span className="text-foreground/60">
+                          {tutor.subjects.length} subject{tutor.subjects.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <Button 
+                        className="w-full"
+                        onClick={() => handleBookTutor(tutor._id)}
+                      >
+                        Book Session
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {pagination && pagination.totalPages > 1 && (
+              <div className="mt-8 flex justify-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleFilterChange('page', pagination.currentPage - 1)}
+                  disabled={!pagination.hasPrev}
+                >
+                  Previous
+                </Button>
+                <span className="flex items-center px-4 text-sm text-foreground/70">
+                  Page {pagination.currentPage} of {pagination.totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => handleFilterChange('page', pagination.currentPage + 1)}
+                  disabled={!pagination.hasNext}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
+        )}
       </section>
     </main>
   );

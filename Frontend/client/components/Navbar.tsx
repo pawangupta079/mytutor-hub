@@ -1,22 +1,58 @@
-import { Link, NavLink } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const navItems = [
+const publicNavItems = [
   { to: "/find-tutor", label: "Find a Tutor" },
-  { to: "/register-tutor", label: "Register as Tutor" },
-  { to: "/student-dashboard", label: "Student Dashboard" },
-  { to: "/tutor-dashboard", label: "Tutor Dashboard" },
-  { to: "/learning-demo", label: "Interactive Learning" },
-  { to: "/schedule", label: "Scheduling" },
-  { to: "/payments", label: "Payments" },
   { to: "/support", label: "Support" },
+];
+
+const studentNavItems = [
+  { to: "/student-dashboard", label: "Dashboard" },
+  { to: "/schedule", label: "My Sessions" },
+  { to: "/payments", label: "Payments" },
+];
+
+const tutorNavItems = [
+  { to: "/tutor-dashboard", label: "Dashboard" },
+  { to: "/schedule", label: "Sessions" },
+  { to: "/payments", label: "Earnings" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const getNavItems = () => {
+    if (!isAuthenticated || !user) return publicNavItems;
+    
+    if (user.role === 'student') {
+      return [...publicNavItems, ...studentNavItems];
+    } else if (user.role === 'tutor') {
+      return [...publicNavItems, ...tutorNavItems];
+    }
+    
+    return publicNavItems;
+  };
+
+  const navItems = getNavItems();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/50">
@@ -41,7 +77,7 @@ export default function Navbar() {
             </svg>
           </div>
           <span className="text-lg font-bold tracking-tight text-foreground">
-            My_Offline_Tutor
+            MyTutor
           </span>
         </Link>
 
@@ -63,15 +99,60 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button
-            variant="ghost"
-            className="text-foreground/80 hover:text-foreground"
-          >
-            Log in
-          </Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Sign up
-          </Button>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarFallback>
+                      {user?.name?.charAt(0)?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">{user?.name}</p>
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                className="text-foreground/80 hover:text-foreground"
+                onClick={() => navigate('/login')}
+              >
+                Log in
+              </Button>
+              <Button 
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={() => navigate('/register')}
+              >
+                Sign up
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -103,10 +184,35 @@ export default function Navbar() {
               </NavLink>
             ))}
             <div className="mt-2 flex gap-2">
-              <Button variant="outline" className="flex-1">
-                Log in
-              </Button>
-              <Button className="flex-1">Sign up</Button>
+              {isAuthenticated ? (
+                <>
+                  <Button variant="outline" className="flex-1" onClick={handleLogout}>
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => {
+                      navigate('/login');
+                      setOpen(false);
+                    }}
+                  >
+                    Log in
+                  </Button>
+                  <Button 
+                    className="flex-1"
+                    onClick={() => {
+                      navigate('/register');
+                      setOpen(false);
+                    }}
+                  >
+                    Sign up
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
