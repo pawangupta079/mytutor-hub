@@ -4,7 +4,240 @@ const Session = require('../models/Session');
 const Review = require('../models/Review');
 
 class TutorController {
-    // Create Tutor Profile
+    // Complete Tutor Registration (Multi-step)
+    async completeTutorRegistration(req, res) {
+        try {
+            const userId = req.user._id;
+            const {
+                // Step 1: Personal Information
+                fullName,
+                bio,
+                location,
+                profileImage,
+                // Step 2: Expertise
+                subjects,
+                qualifications,
+                experience,
+                certificates,
+                languages,
+                // Step 3: Pricing & Availability
+                hourlyRate,
+                generalAvailability,
+                calendarSlots
+            } = req.body;
+
+            // Check if user is already a tutor
+            const existingTutor = await Tutor.findOne({ user: userId });
+            if (existingTutor) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Tutor profile already exists'
+                });
+            }
+
+            // Validate required fields
+            if (!fullName || !subjects || subjects.length === 0 || !hourlyRate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Full name, subjects, and hourly rate are required'
+                });
+            }
+
+            const tutor = new Tutor({
+                user: userId,
+                fullName,
+                bio,
+                location: {
+                    city: location?.city || '',
+                    country: location?.country || ''
+                },
+                profileImage: profileImage || '',
+                subjects: subjects.map(subject => ({
+                    subject: subject.subject,
+                    level: subject.level || 'beginner',
+                    hourlyRate: subject.hourlyRate || hourlyRate
+                })),
+                qualifications: qualifications || [],
+                experience: experience || { years: 0, description: '' },
+                certificates: certificates || [],
+                languages: languages || [],
+                hourlyRate,
+                availability: {
+                    timezone: 'UTC',
+                    generalAvailability: generalAvailability || '',
+                    calendarSlots: calendarSlots || []
+                },
+                isProfileComplete: true
+            });
+
+            await tutor.save();
+
+            // Update user role to tutor
+            await User.findByIdAndUpdate(userId, { role: 'tutor' });
+
+            res.status(201).json({
+                success: true,
+                message: 'Tutor registration completed successfully',
+                data: { tutor }
+            });
+        } catch (error) {
+            console.error('Complete tutor registration error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message
+            });
+        }
+    }
+
+    // Update Tutor Registration Step
+    async updateTutorRegistrationStep(req, res) {
+        try {
+            // Check if user is authenticated
+            if (!req.user || !req.user._id) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User not authenticated'
+                });
+            }
+
+            const userId = req.user._id;
+            const { step, data } = req.body;
+
+            console.log('Update tutor registration step:', { userId, step, data });
+
+            // Validate step number
+            if (!step || step < 1 || step > 3) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid step number. Must be between 1 and 3.'
+                });
+            }
+
+            // Validate data
+            if (!data) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Data is required'
+                });
+            }
+
+            // Check if tutor profile exists, if not create a basic one
+            let tutor = await Tutor.findOne({ user: userId });
+            if (!tutor) {
+                console.log('Creating new tutor profile for user:', userId);
+                // Create a new tutor profile with basic structure
+                // We'll create it with the data from step 1 if available, otherwise with defaults
+                const initialData = {
+                    user: userId,
+                    fullName: data.fullName || 'Temporary Name', // Use provided name or temporary
+                    bio: data.bio || '',
+                    location: {
+                        city: data.location?.city || '',
+                        country: data.location?.country || ''
+                    },
+                    profileImage: data.profileImage || '',
+                    subjects: [],
+                    qualifications: [],
+                    experience: { years: 0, description: '' },
+                    certificates: [],
+                    languages: [],
+                    hourlyRate: 0,
+                    availability: {
+                        timezone: 'UTC',
+                        generalAvailability: '',
+                        calendarSlots: []
+                    },
+                    isProfileComplete: false
+                };
+                
+                tutor = new Tutor(initialData);
+                await tutor.save();
+                console.log('New tutor profile created:', tutor._id);
+            } else {
+                console.log('Found existing tutor profile:', tutor._id);
+            }
+
+            let updateData = {};
+
+            switch (step) {
+                case 1: // Personal Information
+                    updateData = {
+                        fullName: data.fullName || '',
+                        bio: data.bio || '',
+                        location: {
+                            city: data.location?.city || '',
+                            country: data.location?.country || ''
+                        },
+                        profileImage: data.profileImage || ''
+                    };
+                    break;
+                case 2: // Expertise
+                    updateData = {
+                        subjects: data.subjects || [],
+                        qualifications: data.qualifications || [],
+                        experience: data.experience || { years: 0, description: '' },
+                        certificates: data.certificates || [],
+                        languages: data.languages || []
+                    };
+                    break;
+                case 3: // Pricing & Availability
+                    updateData = {
+                        hourlyRate: data.hourlyRate || 0,
+                        'availability.generalAvailability': data.generalAvailability || '',
+                        'availability.calendarSlots': data.calendarSlots || []
+                    };
+                    break;
+                default:
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid step number'
+                    });
+            }
+
+            console.log('Updating tutor with data:', updateData);
+            const updatedTutor = await Tutor.findOneAndUpdate(
+                { user: userId },
+                updateData,
+                { new: true, runValidators: true, upsert: true }
+            ).populate('user', 'name email avatar phone');
+
+            console.log('Tutor updated successfully:', updatedTutor._id);
+            res.json({
+                success: true,
+                message: `Step ${step} updated successfully`,
+                data: { tutor: updatedTutor }
+            });
+        } catch (error) {
+            console.error('Update tutor registration step error:', error);
+            
+            // Handle specific validation errors
+            if (error.name === 'ValidationError') {
+                const validationErrors = Object.values(error.errors).map(err => err.message);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation error',
+                    errors: validationErrors
+                });
+            }
+            
+            // Handle duplicate key errors
+            if (error.code === 11000) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Tutor profile already exists for this user'
+                });
+            }
+            
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message
+            });
+        }
+    }
+
+    // Create Tutor Profile (Legacy method for backward compatibility)
     async createTutorProfile(req, res) {
         try {
             const userId = req.user._id;
@@ -38,10 +271,10 @@ class TutorController {
                 user: userId,
                 bio,
                 subjects,
-                education: education || [],
+                qualifications: education || [],
                 experience: experience || { years: 0, description: '' },
                 languages: languages || [],
-                availability: availability || { timezone: 'UTC', schedule: [] }
+                availability: availability || { timezone: 'UTC', calendarSlots: [] }
             });
 
             await tutor.save();
@@ -155,20 +388,30 @@ class TutorController {
             }
 
             if (minPrice || maxPrice) {
-                query['subjects.hourlyRate'] = {};
-                if (minPrice) query['subjects.hourlyRate'].$gte = parseInt(minPrice);
-                if (maxPrice) query['subjects.hourlyRate'].$lte = parseInt(maxPrice);
+                query.hourlyRate = {};
+                if (minPrice) query.hourlyRate.$gte = parseInt(minPrice);
+                if (maxPrice) query.hourlyRate.$lte = parseInt(maxPrice);
             }
 
             if (minRating) {
                 query['rating.average'] = { $gte: parseFloat(minRating) };
             }
 
+            if (location) {
+                query.$or = [
+                    { 'location.city': { $regex: location, $options: 'i' } },
+                    { 'location.country': { $regex: location, $options: 'i' } }
+                ];
+            }
+
+            // Only show tutors with complete profiles
+            query.isProfileComplete = true;
+
             // Build sort
             if (sortBy === 'rating') {
                 sort['rating.average'] = sortOrder === 'desc' ? -1 : 1;
             } else if (sortBy === 'price') {
-                sort['subjects.hourlyRate'] = sortOrder === 'desc' ? -1 : 1;
+                sort.hourlyRate = sortOrder === 'desc' ? -1 : 1;
             } else if (sortBy === 'experience') {
                 sort['experience.years'] = sortOrder === 'desc' ? -1 : 1;
             }

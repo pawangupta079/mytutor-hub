@@ -215,6 +215,21 @@ class ApiClient {
     return this.request('/tutors/stats/me');
   }
 
+  // Tutor Registration endpoints
+  async completeTutorRegistration(tutorData: any) {
+    return this.request('/tutors/register/complete', {
+      method: 'POST',
+      body: JSON.stringify(tutorData),
+    });
+  }
+
+  async updateTutorRegistrationStep(step: number, data: any) {
+    return this.request('/tutors/register/step', {
+      method: 'PUT',
+      body: JSON.stringify({ step, data }),
+    });
+  }
+
   // Session endpoints
   async bookSession(sessionData: {
     tutorId: string;

@@ -22,20 +22,49 @@ interface Tutor {
     name: string;
     avatar?: string;
   };
+  fullName: string;
+  bio?: string;
+  location: {
+    city: string;
+    country: string;
+  };
+  profileImage?: string;
   subjects: Array<{
     subject: string;
     level: string;
     hourlyRate: number;
   }>;
-  rating: {
-    average: number;
-    count: number;
-  };
-  bio?: string;
+  qualifications: Array<{
+    degree: string;
+    institution: string;
+    year: number;
+  }>;
   experience: {
     years: number;
     description: string;
   };
+  certificates: Array<{
+    name: string;
+    issuingOrganization: string;
+    issueDate: string;
+    expiryDate: string;
+  }>;
+  languages: string[];
+  hourlyRate: number;
+  availability: {
+    generalAvailability: string;
+    calendarSlots: Array<{
+      day: string;
+      startTime: string;
+      endTime: string;
+    }>;
+  };
+  rating: {
+    average: number;
+    count: number;
+  };
+  isVerified: boolean;
+  isAvailable: boolean;
 }
 
 export default function FindTutor() {
@@ -204,62 +233,102 @@ export default function FindTutor() {
             <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {tutors.map((tutor: Tutor) => {
                 const primarySubject = tutor.subjects[0];
-                const hourlyRate = primarySubject?.hourlyRate || 0;
+                const hourlyRate = tutor.hourlyRate || primarySubject?.hourlyRate || 0;
                 
                 return (
-                  <Card key={tutor._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <CardHeader>
+                  <Card key={tutor._id} className="card-modern hover-lift overflow-hidden">
+                    <CardHeader className="pb-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          {tutor.user.avatar ? (
+                        <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                          {tutor.profileImage ? (
+                            <img 
+                              src={tutor.profileImage} 
+                              alt={tutor.fullName || tutor.user.name}
+                              className="h-14 w-14 rounded-full object-cover"
+                            />
+                          ) : tutor.user.avatar ? (
                             <img 
                               src={tutor.user.avatar} 
-                              alt={tutor.user.name}
-                              className="h-12 w-12 rounded-full object-cover"
+                              alt={tutor.fullName || tutor.user.name}
+                              className="h-14 w-14 rounded-full object-cover"
                             />
                           ) : (
-                            <span className="text-primary font-semibold">
-                              {tutor.user.name.charAt(0).toUpperCase()}
+                            <span className="text-lg font-semibold text-primary">
+                              {(tutor.fullName || tutor.user.name).charAt(0).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div className="flex-1">
-                          <CardTitle className="text-lg">{tutor.user.name}</CardTitle>
-                          <p className="text-sm text-foreground/60">
-                            {tutor.experience.years} years experience
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-lg text-foreground">{tutor.fullName || tutor.user.name}</CardTitle>
+                            {tutor.isVerified && (
+                              <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                                <Star className="h-3 w-3 text-white fill-white" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {primarySubject?.subject} • {primarySubject?.level}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {tutor.location.city}, {tutor.location.country}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-foreground/60">
-                          {primarySubject?.subject} • {primarySubject?.level}
+                        <span className="text-sm text-muted-foreground">
+                          {tutor.experience.years} years experience
                         </span>
-                        <span className="text-sm font-semibold text-primary">
+                        <span className="text-lg font-bold text-primary">
                           ${hourlyRate}/hr
                         </span>
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       {tutor.bio && (
-                        <p className="text-sm text-foreground/70 mb-3 line-clamp-2">
+                        <p className="text-sm text-foreground/70 line-clamp-2">
                           {tutor.bio}
                         </p>
                       )}
-                      <div className="flex items-center justify-between text-sm mb-4">
+                      
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        {tutor.qualifications.length > 0 && (
+                          <div className="flex items-center justify-between">
+                            <span>Education:</span>
+                            <span className="font-medium">{tutor.qualifications[0].degree}</span>
+                          </div>
+                        )}
+                        {tutor.languages.length > 0 && (
+                          <div className="flex items-center justify-between">
+                            <span>Languages:</span>
+                            <span className="font-medium">{tutor.languages.slice(0, 2).join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {tutor.availability.generalAvailability && (
+                        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                          <span className="font-medium">Availability:</span> {tutor.availability.generalAvailability}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1">
                           <Star size={14} fill="currentColor" className="text-yellow-400" />
                           <span className="font-medium">{tutor.rating.average.toFixed(1)}</span>
-                          <span className="text-foreground/60">({tutor.rating.count})</span>
+                          <span className="text-muted-foreground">({tutor.rating.count})</span>
                         </div>
-                        <span className="text-foreground/60">
+                        <span className="text-muted-foreground">
                           {tutor.subjects.length} subject{tutor.subjects.length !== 1 ? 's' : ''}
                         </span>
                       </div>
+                      
                       <Button 
-                        className="w-full"
+                        className="w-full btn-modern gradient-primary text-white hover:shadow-lg hover:shadow-primary/25"
                         onClick={() => handleBookTutor(tutor._id)}
+                        disabled={!tutor.isAvailable}
                       >
-                        Book Session
+                        {tutor.isAvailable ? 'Book Session' : 'Currently Unavailable'}
                       </Button>
                     </CardContent>
                   </Card>
