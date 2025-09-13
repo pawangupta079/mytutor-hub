@@ -1,4 +1,4 @@
-# MyTutor - Online Tutoring Platform
+# MyTutor - Offline Tutoring Platform
 
 A full-stack MERN application that connects students with expert tutors for personalized learning experiences.
 
