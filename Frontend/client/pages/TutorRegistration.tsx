@@ -59,7 +59,7 @@ const initialTutorData: TutorData = {
   bio: '',
   location: { city: '', country: '' },
   profileImage: '',
-  subjects: [{ subject: '', level: 'beginner' }],
+  subjects: [{ subject: '', level: 'beginner', hourlyRate: 25 }],
   qualifications: [{ degree: '', institution: '', year: new Date().getFullYear() }],
   experience: { years: 0, description: '' },
   certificates: [],
@@ -134,8 +134,27 @@ export default function TutorRegistration() {
       // Save current step data
       try {
         setIsLoading(true);
-        console.log('Saving step data:', { step: currentStep, data: tutorData });
-        const response = await apiClient.updateTutorRegistrationStep(currentStep, tutorData);
+        
+        // Filter out empty data based on current step
+        let dataToSend = { ...tutorData };
+        
+        if (currentStep === 2) {
+          // For expertise step, filter out empty subjects and qualifications
+          dataToSend.subjects = tutorData.subjects.filter(s => 
+            s.subject && s.subject.trim() !== '' && 
+            s.level && s.level.trim() !== '' &&
+            s.hourlyRate && s.hourlyRate >= 5
+          );
+          
+          dataToSend.qualifications = tutorData.qualifications.filter(q => 
+            q.degree && q.degree.trim() !== '' && 
+            q.institution && q.institution.trim() !== '' && 
+            q.year && q.year > 0
+          );
+        }
+        
+        console.log('Saving step data:', { step: currentStep, data: dataToSend });
+        const response = await apiClient.updateTutorRegistrationStep(currentStep, dataToSend);
         console.log('API response:', response);
         if (response.success) {
           setCurrentStep(prev => prev + 1);
@@ -169,7 +188,46 @@ export default function TutorRegistration() {
       setIsLoading(true);
       setError('');
       
+      // Validate data before sending
+      console.log('Validating tutor data before submission:', {
+        fullName: tutorData.fullName,
+        subjectsCount: tutorData.subjects?.length || 0,
+        subjects: tutorData.subjects,
+        hourlyRate: tutorData.hourlyRate,
+        qualificationsCount: tutorData.qualifications?.length || 0,
+        qualifications: tutorData.qualifications
+      });
+      
+      // Check if we have valid subjects
+      const validSubjects = tutorData.subjects?.filter(s => 
+        s.subject && s.subject.trim() !== '' && 
+        s.level && s.level.trim() !== '' &&
+        s.hourlyRate && s.hourlyRate >= 5
+      ) || [];
+      
+      // Check if we have valid qualifications
+      const validQualifications = tutorData.qualifications?.filter(q => 
+        q.degree && q.degree.trim() !== '' && 
+        q.institution && q.institution.trim() !== '' && 
+        q.year && q.year > 0
+      ) || [];
+      
+      console.log('Validated data:', {
+        validSubjectsCount: validSubjects.length,
+        validQualificationsCount: validQualifications.length,
+        hasFullName: !!tutorData.fullName,
+        hasHourlyRate: !!tutorData.hourlyRate
+      });
+      
+      if (!tutorData.fullName || validSubjects.length === 0 || !tutorData.hourlyRate) {
+        setError('Please complete all required fields: Full Name, at least one valid subject, and hourly rate.');
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log('Submitting tutor registration with data:', tutorData);
       const response = await apiClient.completeTutorRegistration(tutorData);
+      console.log('Registration response:', response);
       
       if (response.success) {
         setSuccess('Tutor registration completed successfully!');
@@ -180,7 +238,16 @@ export default function TutorRegistration() {
         setError(response.message || 'Registration failed');
       }
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      console.error('Registration error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // Show more specific error message
+      const errorMessage = error.response?.data?.message || error.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -271,7 +338,7 @@ export default function TutorRegistration() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => addArrayItem('subjects', { subject: '', level: 'beginner' })}
+            onClick={() => addArrayItem('subjects', { subject: '', level: 'beginner', hourlyRate: tutorData.hourlyRate || 25 })}
           >
             Add Subject
           </Button>

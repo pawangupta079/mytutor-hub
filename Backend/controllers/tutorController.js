@@ -8,74 +8,60 @@ class TutorController {
     async completeTutorRegistration(req, res) {
         try {
             const userId = req.user._id;
-            const {
-                // Step 1: Personal Information
-                fullName,
-                bio,
-                location,
-                profileImage,
-                // Step 2: Expertise
-                subjects,
-                qualifications,
-                experience,
-                certificates,
-                languages,
-                // Step 3: Pricing & Availability
-                hourlyRate,
-                generalAvailability,
-                calendarSlots
-            } = req.body;
-
-            // Check if user is already a tutor
-            const existingTutor = await Tutor.findOne({ user: userId });
-            if (existingTutor) {
-                return res.status(400).json({
+            console.log('Complete tutor registration request for user:', userId);
+            
+            // Find existing tutor profile
+            const tutor = await Tutor.findOne({ user: userId });
+            console.log('Found tutor profile:', tutor ? tutor._id : 'Not found');
+            
+            if (!tutor) {
+                return res.status(404).json({
                     success: false,
-                    message: 'Tutor profile already exists'
+                    message: 'Tutor profile not found. Please complete the registration steps first.'
                 });
             }
 
-            // Validate required fields
-            if (!fullName || !subjects || subjects.length === 0 || !hourlyRate) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Full name, subjects, and hourly rate are required'
-                });
-            }
-
-            const tutor = new Tutor({
-                user: userId,
-                fullName,
-                bio,
-                location: {
-                    city: location?.city || '',
-                    country: location?.country || ''
-                },
-                profileImage: profileImage || '',
-                subjects: subjects.map(subject => ({
-                    subject: subject.subject,
-                    level: subject.level || 'beginner',
-                    hourlyRate: subject.hourlyRate || hourlyRate
-                })),
-                qualifications: qualifications || [],
-                experience: experience || { years: 0, description: '' },
-                certificates: certificates || [],
-                languages: languages || [],
-                hourlyRate,
-                availability: {
-                    timezone: 'UTC',
-                    generalAvailability: generalAvailability || '',
-                    calendarSlots: calendarSlots || []
-                },
-                isProfileComplete: true
+            // Log current tutor data
+            console.log('Tutor data:', {
+                fullName: tutor.fullName,
+                subjectsCount: tutor.subjects?.length || 0,
+                hourlyRate: tutor.hourlyRate,
+                isProfileComplete: tutor.isProfileComplete
             });
 
+            // Validate that the profile has required data
+            const validSubjects = tutor.subjects?.filter(s => 
+                s.subject && s.subject.trim() !== '' && 
+                s.level && s.level.trim() !== '' &&
+                s.hourlyRate && s.hourlyRate >= 5
+            ) || [];
+            
+            if (!tutor.fullName || validSubjects.length === 0 || !tutor.hourlyRate) {
+                console.log('Validation failed:', {
+                    hasFullName: !!tutor.fullName,
+                    validSubjectsCount: validSubjects.length,
+                    totalSubjectsCount: tutor.subjects?.length || 0,
+                    hasHourlyRate: !!tutor.hourlyRate,
+                    subjects: tutor.subjects
+                });
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please complete all required fields: Full Name, at least one valid subject, and hourly rate.'
+                });
+            }
+
+            // Mark profile as complete and make tutor available
+            tutor.isProfileComplete = true;
+            tutor.isAvailable = true;
+            tutor.isVerified = true; // Auto-verify for now
             await tutor.save();
+            console.log('Tutor profile updated successfully');
 
             // Update user role to tutor
             await User.findByIdAndUpdate(userId, { role: 'tutor' });
+            console.log('User role updated to tutor');
 
-            res.status(201).json({
+            res.status(200).json({
                 success: true,
                 message: 'Tutor registration completed successfully',
                 data: { tutor }
@@ -142,7 +128,7 @@ class TutorController {
                     experience: { years: 0, description: '' },
                     certificates: [],
                     languages: [],
-                    hourlyRate: 0,
+                    hourlyRate: 25,
                     availability: {
                         timezone: 'UTC',
                         generalAvailability: '',
@@ -173,9 +159,23 @@ class TutorController {
                     };
                     break;
                 case 2: // Expertise
+                    // Filter out incomplete subjects
+                    const validSubjects = (data.subjects || []).filter(s => 
+                        s.subject && s.subject.trim() !== '' && 
+                        s.level && s.level.trim() !== '' &&
+                        s.hourlyRate && s.hourlyRate >= 5
+                    );
+                    
+                    // Filter out incomplete qualifications
+                    const validQualifications = (data.qualifications || []).filter(q => 
+                        q.degree && q.degree.trim() !== '' && 
+                        q.institution && q.institution.trim() !== '' && 
+                        q.year && q.year > 0
+                    );
+                    
                     updateData = {
-                        subjects: data.subjects || [],
-                        qualifications: data.qualifications || [],
+                        subjects: validSubjects,
+                        qualifications: validQualifications,
                         experience: data.experience || { years: 0, description: '' },
                         certificates: data.certificates || [],
                         languages: data.languages || []
@@ -183,7 +183,7 @@ class TutorController {
                     break;
                 case 3: // Pricing & Availability
                     updateData = {
-                        hourlyRate: data.hourlyRate || 0,
+                        hourlyRate: data.hourlyRate || 25,
                         'availability.generalAvailability': data.generalAvailability || '',
                         'availability.calendarSlots': data.calendarSlots || []
                     };
@@ -214,10 +214,12 @@ class TutorController {
             // Handle specific validation errors
             if (error.name === 'ValidationError') {
                 const validationErrors = Object.values(error.errors).map(err => err.message);
+                console.error('Validation errors:', validationErrors);
                 return res.status(400).json({
                     success: false,
                     message: 'Validation error',
-                    errors: validationErrors
+                    errors: validationErrors,
+                    details: error.errors
                 });
             }
             
@@ -375,7 +377,7 @@ class TutorController {
                 sortOrder = 'desc'
             } = req.query;
 
-            const query = { isAvailable: true };
+            const query = { isAvailable: true, isProfileComplete: true };
             const sort = {};
 
             // Build query

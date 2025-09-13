@@ -217,6 +217,7 @@ class ApiClient {
 
   // Tutor Registration endpoints
   async completeTutorRegistration(tutorData: any) {
+    console.log('API: Sending tutor registration data:', tutorData);
     return this.request('/tutors/register/complete', {
       method: 'POST',
       body: JSON.stringify(tutorData),
