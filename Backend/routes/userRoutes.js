@@ -14,6 +14,4 @@ router.get('/profile', authenticate, userController.getUserProfile);
 router.put('/profile', authenticate, userController.updateProfile);
 router.get('/dashboard', authenticate, userController.getDashboardData);
 
-module.exports = router; 
-
-// mytutor
+module.exports = router;

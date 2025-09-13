@@ -55,13 +55,13 @@ export default function Navbar() {
   const navItems = getNavItems();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/50">
+    <header className="sticky top-0 z-50 w-full glass border-b border-border/50 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-white shadow-md">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="grid h-10 w-10 place-items-center rounded-xl gradient-primary text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
             <svg
-              width="20"
-              height="20"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -76,20 +76,20 @@ export default function Navbar() {
               <circle cx="20" cy="3" r="2" fill="currentColor" />
             </svg>
           </div>
-          <span className="text-lg font-bold tracking-tight text-foreground">
+          <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
             MyTutor
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
               className={({ isActive }) =>
                 cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  isActive ? "text-primary" : "text-foreground/70",
+                  "nav-link px-4 py-2 rounded-lg transition-all duration-200 hover:bg-primary/5",
+                  isActive ? "text-primary bg-primary/10" : "text-foreground/70 hover:text-foreground",
                 )
               }
             >
@@ -98,40 +98,49 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-primary/10 transition-colors duration-200">
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
-                    <AvatarFallback>
+                    <AvatarFallback className="gradient-primary text-white font-semibold">
                       {user?.name?.charAt(0)?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <div className="flex items-center justify-start gap-2 p-2">
+              <DropdownMenuContent className="w-64 glass border-border/50 shadow-modern-lg" align="end" forceMount>
+                <div className="flex items-center justify-start gap-3 p-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarFallback className="gradient-primary text-white font-semibold">
+                      {user?.name?.charAt(0)?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">{user?.name}</p>
+                    <p className="font-semibold text-foreground">{user?.name}</p>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
                       {user?.email}
                     </p>
+                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                      {user?.role}
+                    </span>
                   </div>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <User className="mr-2 h-4 w-4" />
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem onClick={() => navigate('/profile')} className="hover:bg-primary/5">
+                  <User className="mr-3 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onClick={() => navigate('/settings')} className="hover:bg-primary/5">
+                  <Settings className="mr-3 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem onClick={handleLogout} className="hover:bg-destructive/10 text-destructive">
+                  <LogOut className="mr-3 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -140,13 +149,13 @@ export default function Navbar() {
             <>
               <Button
                 variant="ghost"
-                className="text-foreground/80 hover:text-foreground"
+                className="nav-link text-foreground/80 hover:text-foreground hover:bg-primary/5"
                 onClick={() => navigate('/login')}
               >
                 Log in
               </Button>
               <Button 
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                className="btn-modern gradient-primary text-white hover:shadow-lg hover:shadow-primary/25 px-6 py-2"
                 onClick={() => navigate('/register')}
               >
                 Sign up

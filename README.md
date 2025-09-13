@@ -26,40 +26,6 @@ A full-stack MERN application that connects students with expert tutors for pers
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Modern UI**: Beautiful interface with shadcn/ui components
 
-## Project Architecture
-
-```
-[Clients: Web/Mobile Apps (React/React Native)]
-          |
-          | (HTTPS/WebSockets)
-          v
-[API Gateway (AWS API Gateway)]
-          |
-          | (Load Balanced Requests)
-          +-------------------+-------------------+
-          |                   |                   |
-[Auth Service]       [User/Scheduling Service]   [Session Service (WebRTC)]
-(JWT, OAuth)         (PostgreSQL, Elasticsearch) (Socket.io, Agora/Twilio)
-          |                   |                   |
-          +-------------------+-------------------+
-                              |
-                              | (Events)
-                              v
-[Message Broker (Kafka/RabbitMQ)]
-                              |
-                              +-------------------+-------------------+
-                              |                   |                   |
-                     [Payment Service]   [Notification Service]   [Analytics Service]
-                      (Stripe)             (FCM/Twilio)            (ELK Stack)
-                              |
-                              v
-[Data Layer: PostgreSQL | MongoDB | Redis | S3]
-          |
-          v
-[Infrastructure: Kubernetes | Monitoring (Prometheus/Grafana) | CI/CD]
-
-```
-
 ## 🛠️ Technology Stack
 
 ### Frontend

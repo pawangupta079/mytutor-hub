@@ -1,4 +1,3 @@
-// do the changes here
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
