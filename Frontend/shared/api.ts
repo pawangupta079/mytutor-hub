@@ -1,4 +1,13 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Warn if using fallback base URL
+try {
+  if (!import.meta.env.VITE_API_URL) {
+    // eslint-disable-next-line no-console
+    console.warn('[api] VITE_API_URL not set; using fallback http://localhost:5000/api');
+  }
+} catch {
+  // ignore if import.meta is not available in some tooling contexts
+}
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -28,39 +37,60 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit & { timeoutMs?: number } = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
+    const controller = new AbortController();
+    const timeoutMs = options.timeoutMs ?? 12000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...(this.token && { Authorization: `Bearer ${this.token}` }),
         ...options.headers,
       },
-      ...options,
+      method: options.method,
+      body: options.body as any,
+      signal: controller.signal,
     };
-  
+
     try {
       const response = await fetch(url, config);
-      
-      // Check if response is ok before parsing JSON
+
       if (!response.ok) {
         const errorText = await response.text();
-        let errorData;
+        let errorData: any;
         try {
           errorData = JSON.parse(errorText);
         } catch {
           errorData = { message: errorText };
         }
-        throw new Error(errorData.message || 'Request failed');
+        // Clear token on unauthorized
+        if (response.status === 401) {
+          this.setToken(null);
+        }
+        const err: any = new Error(errorData.message || 'Request failed');
+        err.status = response.status;
+        err.errors = errorData.errors;
+        err.data = errorData;
+        throw err;
       }
-  
+
       const data = await response.json();
       return data;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('API request failed:', error);
+      if ((error as any)?.name === 'AbortError') {
+        const err: any = new Error('Request timed out');
+        err.status = 408;
+        throw err;
+      }
       throw error;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -185,11 +215,17 @@ class ApiClient {
     limit?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    onlyComplete?: boolean;
+    onlyAvailable?: boolean;
   }) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        searchParams.append(key, value.toString());
+        if (typeof value === 'boolean') {
+          searchParams.append(key, value ? 'true' : 'false');
+        } else {
+          searchParams.append(key, value.toString());
+        }
       }
     });
     

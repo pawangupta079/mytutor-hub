@@ -517,53 +517,27 @@ export default function TutorRegistration() {
         <Label htmlFor="calendarSlots" className="text-sm font-medium">Calendar Slots</Label>
         <Textarea
           id="calendarSlots"
-          value={tutorData.calendarSlots.map(slot => `${slot.day}: ${slot.startTime} - ${slot.endTime}`).join('\n')}
+          value={tutorData.calendarSlots.map(slot => `${slot.day}`).join('\n')}
           onChange={(e) => {
-            const lines = e.target.value.split('\n').filter(line => line.trim());
-            const slots = lines.map(line => {
-              const [day, timeRange] = line.split(':');
-              const [startTime, endTime] = timeRange?.split(' - ') || ['', ''];
-              return { day: day?.trim() || '', startTime: startTime?.trim() || '', endTime: endTime?.trim() || '' };
-            });
+            const lines = e.target.value
+              .split('\n')
+              .map(l => l.trim())
+              .filter(Boolean);
+            // Extract numeric day values only (1-31)
+            const numbers = lines
+              .map((l) => l.replace(/[^0-9]/g, ''))
+              .map((n) => (n ? parseInt(n, 10) : NaN))
+              .filter((n) => Number.isInteger(n) && n >= 1 && n <= 31) as number[];
+            const unique = Array.from(new Set(numbers));
+            const slots = unique.map((n) => ({ day: String(n), startTime: '', endTime: '' }));
             handleInputChange('calendarSlots', slots);
           }}
-          placeholder="List available time slots"
+          placeholder="Enter available day numbers (1-31), one per line (e.g., 1)"
           className="input-modern min-h-[100px]"
         />
-        <p className="text-xs text-muted-foreground">Format: Day: Start Time - End Time (one per line)</p>
-              </div>
-            </div>
-  );
-
-  const renderStep4 = () => (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold mb-2">Review Your Details</h3>
-        <p className="text-muted-foreground">Review your details and submit. You can edit this information later from your dashboard.</p>
+        <p className="text-xs text-muted-foreground">Format: Day number 1-31 (one per line). Invalid entries are ignored.</p>
       </div>
-
-      <div className="space-y-4">
-        <div className="p-4 border rounded-lg">
-          <h4 className="font-medium mb-2">Personal Information</h4>
-          <p><strong>Name:</strong> {tutorData.fullName}</p>
-          <p><strong>Location:</strong> {tutorData.location.city}, {tutorData.location.country}</p>
-          <p><strong>Bio:</strong> {tutorData.bio || 'Not provided'}</p>
-              </div>
-
-        <div className="p-4 border rounded-lg">
-          <h4 className="font-medium mb-2">Subjects and Qualifications</h4>
-          <p><strong>Subjects:</strong> {tutorData.subjects.map(s => `${s.subject} (${s.level})`).join(', ')}</p>
-          <p><strong>Experience:</strong> {tutorData.experience.years} years</p>
-          <p><strong>Qualifications:</strong> {tutorData.qualifications.map(q => `${q.degree} from ${q.institution} (${q.year})`).join(', ')}</p>
-              </div>
-
-        <div className="p-4 border rounded-lg">
-          <h4 className="font-medium mb-2">Rates and Availability</h4>
-          <p><strong>Hourly Rate:</strong> ${tutorData.hourlyRate}</p>
-          <p><strong>Availability:</strong> {tutorData.generalAvailability || 'Not specified'}</p>
-              </div>
-              </div>
-            </div>
+    </div>
   );
 
   const renderCurrentStep = () => {

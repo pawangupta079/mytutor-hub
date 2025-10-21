@@ -374,10 +374,19 @@ class TutorController {
                 page = 1,
                 limit = 10,
                 sortBy = 'rating',
-                sortOrder = 'desc'
+                sortOrder = 'desc',
+                onlyComplete = 'true',
+                onlyAvailable = 'true'
             } = req.query;
 
-            const query = { isAvailable: true, isProfileComplete: true };
+            const query = {};
+            // Enforce availability/profile completeness based on flags (default true)
+            if (String(onlyAvailable) !== 'false') {
+                query.isAvailable = true;
+            }
+            if (String(onlyComplete) !== 'false') {
+                query.isProfileComplete = true;
+            }
             const sort = {};
 
             // Build query
@@ -406,8 +415,7 @@ class TutorController {
                 ];
             }
 
-            // Only show tutors with complete profiles
-            query.isProfileComplete = true;
+            // If onlyComplete flag was set above, it's already applied
 
             // Build sort
             if (sortBy === 'rating') {

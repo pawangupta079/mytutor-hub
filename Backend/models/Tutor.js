@@ -122,7 +122,7 @@ const tutorSchema = new mongoose.Schema({
         calendarSlots: [{
             day: {
                 type: String,
-                enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+                match: [/^([1-9]|[12][0-9]|3[01])$/, 'Day must be a number between 1 and 31']
             },
             startTime: String,
             endTime: String,
