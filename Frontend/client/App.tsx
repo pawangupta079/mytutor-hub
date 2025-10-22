@@ -15,6 +15,7 @@ import FindTutor from "./pages/FindTutor";
 import TutorRegistration from "./pages/TutorRegistration";
 import StudentDashboard from "./pages/StudentDashboard";
 import TutorDashboard from "./pages/TutorDashboard";
+import TutorProfile from "./pages/TutorProfile";
 import InteractiveLearning from "./pages/InteractiveLearning";
 import Scheduling from "./pages/Scheduling";
 import Payment from "./pages/Payment";
@@ -77,6 +78,14 @@ const App = () => (
                   element={
                     <ProtectedRoute allowedRoles={['tutor']}>
                       <TutorDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/tutor-profile" 
+                  element={
+                    <ProtectedRoute allowedRoles={['tutor']}>
+                      <TutorProfile />
                     </ProtectedRoute>
                   } 
                 />

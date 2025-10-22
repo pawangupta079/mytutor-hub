@@ -81,3 +81,4 @@ paymentSchema.index({ stripePaymentIntentId: 1 });
 const Payment = mongoose.model('Payment', paymentSchema);
 
 module.exports = Payment;
+      

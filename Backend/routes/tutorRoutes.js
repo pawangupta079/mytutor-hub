@@ -8,6 +8,9 @@ router.get('/search', optionalAuth, tutorController.searchTutors);
 router.get('/:tutorId', optionalAuth, tutorController.getTutorById);
 router.get('/:tutorId/availability', optionalAuth, tutorController.getTutorAvailability);
 
+// DEBUG: List all tutors (no filters)
+router.get('/debug/all', tutorController.listAllTutors);
+
 // Protected routes - Tutor only
 router.post('/register/complete', authenticate, tutorController.completeTutorRegistration);
 router.put('/register/step', authenticate, tutorController.updateTutorRegistrationStep);

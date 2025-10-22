@@ -152,6 +152,11 @@ const tutorSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    // Resume
+    resume: {
+        type: String,
+        default: ''
+    },
     // Status and Verification
     isVerified: {
         type: Boolean,

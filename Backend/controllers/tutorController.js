@@ -50,6 +50,10 @@ class TutorController {
                 });
             }
 
+            // Save resume if provided
+            if (req.body.resume) {
+                tutor.resume = req.body.resume;
+            }
             // Mark profile as complete and make tutor available
             tutor.isProfileComplete = true;
             tutor.isAvailable = true;
@@ -73,6 +77,16 @@ class TutorController {
                 message: 'Internal server error',
                 error: error.message
             });
+        }
+    }
+
+    // DEBUG: List all tutors (no filters)
+    async listAllTutors(req, res) {
+        try {
+            const tutors = await Tutor.find({}).populate('user', 'name email avatar role');
+            res.json({ success: true, tutors });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Error fetching tutors', error: error.message });
         }
     }
 

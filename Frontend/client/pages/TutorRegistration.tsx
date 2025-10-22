@@ -47,11 +47,7 @@ interface TutorData {
   // Step 3: Pricing & Availability
   hourlyRate: number;
   generalAvailability: string;
-  calendarSlots: Array<{
-    day: string;
-    startTime: string;
-    endTime: string;
-  }>;
+  resume: string; // URL or base64 for uploaded resume
 }
 
 const initialTutorData: TutorData = {
@@ -66,7 +62,7 @@ const initialTutorData: TutorData = {
   languages: [],
   hourlyRate: 25,
   generalAvailability: '',
-  calendarSlots: []
+  resume: ''
 };
 
 const steps = [
@@ -232,7 +228,7 @@ export default function TutorRegistration() {
       if (response.success) {
         setSuccess('Tutor registration completed successfully!');
         setTimeout(() => {
-          navigate('/tutor-dashboard');
+          navigate('/find-tutor');
         }, 2000);
       } else {
         setError(response.message || 'Registration failed');
@@ -500,7 +496,7 @@ export default function TutorRegistration() {
           min="5"
           max="1000"
         />
-              </div>
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="generalAvailability" className="text-sm font-medium">Availability</Label>
@@ -511,28 +507,31 @@ export default function TutorRegistration() {
           placeholder="e.g., Weekdays 6-9 PM"
           className="input-modern"
         />
-              </div>
+      </div>
 
       <div className="space-y-2">
-        <Label htmlFor="calendarSlots" className="text-sm font-medium">Calendar Slots</Label>
-        <Textarea
-          id="calendarSlots"
-          value={tutorData.calendarSlots.map(slot => `${slot.day}: ${slot.startTime} - ${slot.endTime}`).join('\n')}
+        <Label htmlFor="resume" className="text-sm font-medium">Upload Resume (PDF)</Label>
+        <Input
+          id="resume"
+          type="file"
+          accept="application/pdf"
+          className="input-modern"
           onChange={(e) => {
-            const lines = e.target.value.split('\n').filter(line => line.trim());
-            const slots = lines.map(line => {
-              const [day, timeRange] = line.split(':');
-              const [startTime, endTime] = timeRange?.split(' - ') || ['', ''];
-              return { day: day?.trim() || '', startTime: startTime?.trim() || '', endTime: endTime?.trim() || '' };
-            });
-            handleInputChange('calendarSlots', slots);
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                handleInputChange('resume', ev.target?.result as string);
+              };
+              reader.readAsDataURL(file);
+            }
           }}
-          placeholder="List available time slots"
-          className="input-modern min-h-[100px]"
         />
-        <p className="text-xs text-muted-foreground">Format: Day: Start Time - End Time (one per line)</p>
-              </div>
-            </div>
+        {tutorData.resume && (
+          <div className="mt-2 text-xs text-green-700">Resume uploaded</div>
+        )}
+      </div>
+    </div>
   );
 
   const renderStep4 = () => (
@@ -561,7 +560,8 @@ export default function TutorRegistration() {
           <h4 className="font-medium mb-2">Rates and Availability</h4>
           <p><strong>Hourly Rate:</strong> ${tutorData.hourlyRate}</p>
           <p><strong>Availability:</strong> {tutorData.generalAvailability || 'Not specified'}</p>
-              </div>
+          <p><strong>Resume:</strong> {tutorData.resume ? 'Uploaded' : 'Not uploaded'}</p>
+        </div>
               </div>
             </div>
   );
@@ -664,25 +664,25 @@ export default function TutorRegistration() {
             {renderCurrentStep()}
 
             <div className="flex justify-between pt-6">
-              <Button
+            <Button
                 type="button"
-                variant="outline"
+              variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 1 || isLoading}
                 className="btn-modern"
-              >
+            >
                 <ChevronLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
+              Back
+            </Button>
 
               {currentStep < 4 ? (
-                <Button
+              <Button
                   type="button"
                   onClick={handleNext}
                   disabled={!canProceed() || isLoading}
                   className="btn-modern gradient-primary text-white hover:shadow-lg hover:shadow-primary/25"
-                >
-                  Next
+              >
+                Next
                   <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (

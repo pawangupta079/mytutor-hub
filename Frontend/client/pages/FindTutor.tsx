@@ -315,8 +315,8 @@ export default function FindTutor() {
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1">
                           <Star size={14} fill="currentColor" className="text-yellow-400" />
-                          <span className="font-medium">{tutor.rating.average.toFixed(1)}</span>
-                          <span className="text-muted-foreground">({tutor.rating.count})</span>
+                          <span className="font-medium">{(tutor.rating?.average ?? 0).toFixed(1)}</span>
+                          <span className="text-muted-foreground">({tutor.rating?.count ?? 0})</span>
                         </div>
                         <span className="text-muted-foreground">
                           {tutor.subjects.length} subject{tutor.subjects.length !== 1 ? 's' : ''}
