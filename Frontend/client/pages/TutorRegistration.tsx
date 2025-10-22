@@ -510,28 +510,25 @@ export default function TutorRegistration() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="resume" className="text-sm font-medium">Upload Resume (PDF)</Label>
-        <Input
-          id="resume"
-          type="file"
-          accept="application/pdf"
-          className="input-modern"
+        <Label htmlFor="calendarSlots" className="text-sm font-medium">Calendar Slots</Label>
+        <Textarea
+          id="calendarSlots"
+          value={tutorData.calendarSlots.map(slot => `${slot.day}: ${slot.startTime} - ${slot.endTime}`).join('\n')}
           onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                handleInputChange('resume', ev.target?.result as string);
-              };
-              reader.readAsDataURL(file);
-            }
+            const lines = e.target.value.split('\n').filter(line => line.trim());
+            const slots = lines.map(line => {
+              const [day, timeRange] = line.split(':');
+              const [startTime, endTime] = timeRange?.split(' - ') || ['', ''];
+              return { day: day?.trim() || '', startTime: startTime?.trim() || '', endTime: endTime?.trim() || '' };
+            });
+            handleInputChange('calendarSlots', slots);
           }}
+          placeholder="List available time slots"
+          className="input-modern min-h-[100px]"
         />
-        {tutorData.resume && (
-          <div className="mt-2 text-xs text-green-700">Resume uploaded</div>
-        )}
-      </div>
-    </div>
+        <p className="text-xs text-muted-foreground">Format: Day: Start Time - End Time (one per line)</p>
+              </div>
+            </div>
   );
 
   const renderStep4 = () => (
@@ -560,8 +557,7 @@ export default function TutorRegistration() {
           <h4 className="font-medium mb-2">Rates and Availability</h4>
           <p><strong>Hourly Rate:</strong> ${tutorData.hourlyRate}</p>
           <p><strong>Availability:</strong> {tutorData.generalAvailability || 'Not specified'}</p>
-          <p><strong>Resume:</strong> {tutorData.resume ? 'Uploaded' : 'Not uploaded'}</p>
-        </div>
+              </div>
               </div>
             </div>
   );

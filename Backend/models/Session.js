@@ -15,7 +15,7 @@ const sessionSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    },
+    }, 
     level: {
         type: String,
         enum: ['beginner', 'intermediate', 'advanced', 'expert'],

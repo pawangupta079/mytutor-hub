@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+
 import {
   Select,
   SelectContent,
@@ -69,11 +70,12 @@ interface Tutor {
 
 export default function FindTutor() {
   const navigate = useNavigate();
+  const apiBase = (import.meta as any).env?.VITE_API_URL;
   const [filters, setFilters] = useState({
     subject: '',
     level: '',
     minPrice: 0,
-    maxPrice: 100,
+    maxPrice: 1000,
     minRating: 0,
     location: '',
     page: 1,
@@ -82,10 +84,27 @@ export default function FindTutor() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['tutors', filters],
-    queryFn: () => apiClient.searchTutors(filters),
+    queryKey: ['tutors', filters, searchQuery],
+    queryFn: () => apiClient.searchTutors({
+      ...filters,
+      subject: searchQuery || filters.subject,
+      // Temporarily include incomplete/unavailable tutors for debugging
+      onlyComplete: false,
+      onlyAvailable: false,
+    }),
     enabled: true
   });
+
+  useEffect(() => {
+    // Debug logs to help diagnose why list is empty
+    // Remove after verifying
+    // eslint-disable-next-line no-console
+    console.log('[FindTutor] env VITE_API_URL:', apiBase);
+    // eslint-disable-next-line no-console
+    console.log('[FindTutor] filters:', filters, 'searchQuery:', searchQuery);
+    // eslint-disable-next-line no-console
+    console.log('[FindTutor] data:', data, 'error:', error);
+  }, [apiBase, filters, searchQuery, data, error]);
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters(prev => ({
@@ -112,6 +131,12 @@ export default function FindTutor() {
 
   return (
     <main className="container grid gap-8 py-10 md:grid-cols-[280px_1fr]">
+      {!apiBase && (
+        <div className="md:col-span-2 rounded border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+          Warning: VITE_API_URL is not set. Set it in Frontend/.env to your backend URL (e.g., http://localhost:5000/api) and restart the dev server.
+        </div>
+      )}
+
       <aside className="hidden rounded-lg border bg-white p-5 md:block">
         <h3 className="font-semibold">Filters</h3>
         <div className="mt-4 space-y-4 text-sm">
@@ -363,3 +388,4 @@ export default function FindTutor() {
     </main>
   );
 }
+console.log("FindTutor")
