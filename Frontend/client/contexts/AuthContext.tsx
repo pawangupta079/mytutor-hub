@@ -121,12 +121,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await apiClient.register(userData);
-      
+
       if (response.success && response.data) {
+        const token = (response.data as any).token;
         setUser((response.data as any).user);
-        setToken((response.data as any).token);
+        setToken(token);
+        apiClient.setToken(token); // Set token in apiClient for subsequent requests
       }
-      
+
       return response;
     } catch (error) {
       console.error('Registration error:', error);

@@ -140,6 +140,16 @@ export default function TutorRegistration() {
       try {
         setIsLoading(true);
 
+        // Double-check authentication before making API call
+        const currentToken = localStorage.getItem('token');
+        if (!currentToken) {
+          setError('Authentication token missing. Please log in again.');
+          return;
+        }
+
+        // Ensure apiClient has the token
+        apiClient.setToken(currentToken);
+
         // Filter out empty data based on current step
         let dataToSend = { ...tutorData };
 
@@ -158,7 +168,7 @@ export default function TutorRegistration() {
           );
         }
 
-        console.log('Sending step data:', { step: currentStep, data: dataToSend });
+        console.log('Sending step data:', { step: currentStep, data: dataToSend, hasToken: !!currentToken });
         const response = await apiClient.updateTutorRegistrationStep(currentStep, dataToSend);
         if (response.success) {
           setCurrentStep(prev => prev + 1);
