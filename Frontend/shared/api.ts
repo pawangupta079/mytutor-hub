@@ -1,9 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mytutor-i2f5pwxhg-pawan-guptas-projects-46217623.vercel.app/api';
 // Warn if using fallback base URL
 try {
   if (!import.meta.env.VITE_API_URL) {
     // eslint-disable-next-line no-console
-    console.warn('[api] VITE_API_URL not set; using fallback http://localhost:5000/api');
+    console.warn('[api] VITE_API_URL not set; using fallback https://mytutor-i2f5pwxhg-pawan-guptas-projects-46217623.vercel.app/api');
   }
 } catch {
   // ignore if import.meta is not available in some tooling contexts
@@ -253,7 +253,6 @@ class ApiClient {
 
   // Tutor Registration endpoints
   async completeTutorRegistration(tutorData: any) {
-    console.log('API: Sending tutor registration data:', tutorData);
     return this.request('/tutors/register/complete', {
       method: 'POST',
       body: JSON.stringify(tutorData),

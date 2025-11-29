@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/Backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/Frontend/dist/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "MONGO_URI": "mongodb+srv://pkg739895_db_user:2pBg5mcbJ3iwi8q4@cluster0.8bodnnw.mongodb.net/?appName=Cluster0",
+    "JWT_SECRET": "your-super-secret-jwt-key-here",
+    "JWT_EXPIRE": "7d",
+    "FRONTEND_URL": "https://your-frontend-url.vercel.app"
+  }
+}

@@ -9,14 +9,27 @@ const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
+ // Log environment status (for debugging)
+console.log('Environment check - JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
+console.log('Environment check - MONGO_URI:', process.env.MONGO_URI ? 'SET' : 'NOT SET');
+console.log('Environment check - DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+
 // Import routes
 const userRoutes = require('./routes/userRoutes');
 const tutorRoutes = require('./routes/tutorRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-
+ 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// =======================
+// Environment Variables Check
+// =======================
+console.log('🔧 Checking environment variables...');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ SET' : '❌ NOT SET');
+console.log('MONGO_URI:', process.env.MONGO_URI ? '✅ SET' : '❌ NOT SET');
+console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
 
 // =======================
 // Database Connection
@@ -48,22 +61,62 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
-  'http://127.0.0.1:5173'
+  'http://127.0.0.1:5173',
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+  'http://localhost:8081',
+  'http://127.0.0.1:8081'
 ].flat().filter(Boolean);
 
-app.use(cors({
+// Regex patterns for localhost origins
+const localhostPatterns = [
+  /^http:\/\/localhost:\d+$/,
+  /^http:\/\/127\.0\.0\.1:\d+$/
+];
+
+// More permissive CORS for development
+const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman or curl
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // In development, allow ALL origins for easier testing
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Development mode: Allowing origin:', origin);
+      return callback(null, true);
+    }
+
+    // In production, check against allowed origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Check regex patterns for localhost
+    if (localhostPatterns.some(pattern => pattern.test(origin))) {
+      return callback(null, true);
+    }
+
+    console.log('CORS blocked origin:', origin);
+    console.log('Allowed origins:', allowedOrigins);
     return callback(new Error('CORS not allowed from origin: ' + origin));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+};
+
+app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors());
+
+// =======================
+// Request Logging Middleware
+// =======================
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - Body:`, JSON.stringify(req.body));
+  next();
+});
 
 // =======================
 // Body Parser

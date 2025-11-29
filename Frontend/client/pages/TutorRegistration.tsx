@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,7 @@ interface TutorData {
   subjects: Array<{
     subject: string;
     level: string;
+    hourlyRate: number;
   }>;
   qualifications: Array<{
     degree: string;
@@ -81,6 +83,7 @@ export default function TutorRegistration() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleInputChange = (field: string, value: any) => {
     setTutorData(prev => ({
@@ -127,31 +130,36 @@ export default function TutorRegistration() {
 
   const handleNext = async () => {
     if (currentStep < 4) {
+      // Check if user is authenticated
+      if (!user || !localStorage.getItem('token')) {
+        setError('You must be logged in to continue. Please log in and try again.');
+        return;
+      }
+
       // Save current step data
       try {
         setIsLoading(true);
-        
+
         // Filter out empty data based on current step
         let dataToSend = { ...tutorData };
-        
+
         if (currentStep === 2) {
           // For expertise step, filter out empty subjects and qualifications
-          dataToSend.subjects = tutorData.subjects.filter(s => 
-            s.subject && s.subject.trim() !== '' && 
+          dataToSend.subjects = tutorData.subjects.filter(s =>
+            s.subject && s.subject.trim() !== '' &&
             s.level && s.level.trim() !== '' &&
             s.hourlyRate && s.hourlyRate >= 5
           );
-          
-          dataToSend.qualifications = tutorData.qualifications.filter(q => 
-            q.degree && q.degree.trim() !== '' && 
-            q.institution && q.institution.trim() !== '' && 
+
+          dataToSend.qualifications = tutorData.qualifications.filter(q =>
+            q.degree && q.degree.trim() !== '' &&
+            q.institution && q.institution.trim() !== '' &&
             q.year && q.year > 0
           );
         }
-        
-        console.log('Saving step data:', { step: currentStep, data: dataToSend });
+
+        console.log('Sending step data:', { step: currentStep, data: dataToSend });
         const response = await apiClient.updateTutorRegistrationStep(currentStep, dataToSend);
-        console.log('API response:', response);
         if (response.success) {
           setCurrentStep(prev => prev + 1);
           setError('');
@@ -184,49 +192,32 @@ export default function TutorRegistration() {
       setIsLoading(true);
       setError('');
       
-      // Validate data before sending
-      console.log('Validating tutor data before submission:', {
-        fullName: tutorData.fullName,
-        subjectsCount: tutorData.subjects?.length || 0,
-        subjects: tutorData.subjects,
-        hourlyRate: tutorData.hourlyRate,
-        qualificationsCount: tutorData.qualifications?.length || 0,
-        qualifications: tutorData.qualifications
-      });
-      
       // Check if we have valid subjects
-      const validSubjects = tutorData.subjects?.filter(s => 
-        s.subject && s.subject.trim() !== '' && 
+      const validSubjects = tutorData.subjects?.filter(s =>
+        s.subject && s.subject.trim() !== '' &&
         s.level && s.level.trim() !== '' &&
         s.hourlyRate && s.hourlyRate >= 5
       ) || [];
-      
+
       // Check if we have valid qualifications
-      const validQualifications = tutorData.qualifications?.filter(q => 
-        q.degree && q.degree.trim() !== '' && 
-        q.institution && q.institution.trim() !== '' && 
+      const validQualifications = tutorData.qualifications?.filter(q =>
+        q.degree && q.degree.trim() !== '' &&
+        q.institution && q.institution.trim() !== '' &&
         q.year && q.year > 0
       ) || [];
-      
-      console.log('Validated data:', {
-        validSubjectsCount: validSubjects.length,
-        validQualificationsCount: validQualifications.length,
-        hasFullName: !!tutorData.fullName,
-        hasHourlyRate: !!tutorData.hourlyRate
-      });
-      
+
       if (!tutorData.fullName || validSubjects.length === 0 || !tutorData.hourlyRate) {
         setError('Please complete all required fields: Full Name, at least one valid subject, and hourly rate.');
         setIsLoading(false);
         return;
       }
-      
-      console.log('Submitting tutor registration with data:', tutorData);
+
       const response = await apiClient.completeTutorRegistration(tutorData);
-      console.log('Registration response:', response);
       
       if (response.success) {
         setSuccess('Tutor registration completed successfully!');
+        // Invalidate the tutors query to refresh the find-tutor page
+        queryClient.invalidateQueries({ queryKey: ['tutors'] });
         setTimeout(() => {
           navigate('/find-tutor');
         }, 2000);
@@ -508,27 +499,7 @@ export default function TutorRegistration() {
           className="input-modern"
         />
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="calendarSlots" className="text-sm font-medium">Calendar Slots</Label>
-        <Textarea
-          id="calendarSlots"
-          value={tutorData.calendarSlots.map(slot => `${slot.day}: ${slot.startTime} - ${slot.endTime}`).join('\n')}
-          onChange={(e) => {
-            const lines = e.target.value.split('\n').filter(line => line.trim());
-            const slots = lines.map(line => {
-              const [day, timeRange] = line.split(':');
-              const [startTime, endTime] = timeRange?.split(' - ') || ['', ''];
-              return { day: day?.trim() || '', startTime: startTime?.trim() || '', endTime: endTime?.trim() || '' };
-            });
-            handleInputChange('calendarSlots', slots);
-          }}
-          placeholder="List available time slots"
-          className="input-modern min-h-[100px]"
-        />
-        <p className="text-xs text-muted-foreground">Format: Day: Start Time - End Time (one per line)</p>
-              </div>
-            </div>
+    </div>
   );
 
   const renderStep4 = () => (

@@ -45,14 +45,26 @@ export default function RegisterForm() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-  
+
     // Validation
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.name.trim().length < 2) {
+      setError('Name must be at least 2 characters long');
+      setIsLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
       return;
     }
-  
+
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       setIsLoading(false);

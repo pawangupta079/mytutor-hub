@@ -19,36 +19,49 @@ class UserController {
         try {
             const { name, email, password, role = 'student', phone } = req.body;
 
+            console.log('Starting registration for email:', email);
+
             // Validation
             if (!name || !email || !password) {
+                console.log('Validation failed: missing required fields');
                 return res.status(400).json({
                     success: false,
                     message: 'Please provide all required fields'
                 });
             }
 
+            // Normalize email
+            const normalizedEmail = email.toLowerCase().trim();
+            console.log('Normalized email:', normalizedEmail);
+
             // Check if user already exists
-            const existingUser = await User.findOne({ email });
+            const existingUser = await User.findOne({ email: normalizedEmail });
             if (existingUser) {
+                console.log('User already exists with email:', normalizedEmail);
                 return res.status(400).json({
                     success: false,
                     message: 'User already exists with this email'
                 });
             }
 
+            console.log('Creating new user');
             // Create user
             const user = new User({
-                name,
-                email,
+                name: name.trim(),
+                email: normalizedEmail,
                 password,
                 role,
-                phone
+                phone: phone ? phone.trim() : undefined
             });
 
+            console.log('Saving user to database');
             await user.save();
+            console.log('User saved successfully');
 
             // Generate token
+            console.log('Generating JWT token');
             const token = generateToken(user._id);
+            console.log('Token generated successfully');
 
             res.status(201).json({
                 success: true,
@@ -60,6 +73,7 @@ class UserController {
             });
         } catch (error) {
             console.error('Registration error:', error);
+            console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
                 message: 'Internal server error',

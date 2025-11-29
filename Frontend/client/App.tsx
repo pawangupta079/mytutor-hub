@@ -57,13 +57,13 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/register-tutor" 
+                <Route
+                  path="/register-tutor"
                   element={
-                    <ProtectedRoute allowedRoles={['tutor']}>
+                    <ProtectedRoute>
                       <TutorRegistration />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
                 <Route 
                   path="/student-dashboard" 

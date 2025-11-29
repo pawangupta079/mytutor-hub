@@ -9,10 +9,14 @@
       }
     }
   ],
+  "buildCommand": "npm run build:client",
   "routes": [
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "VITE_API_URL": "https://backend-j2jzy0260-pawan-guptas-projects-46217623.vercel.app/api"
+  }
 }

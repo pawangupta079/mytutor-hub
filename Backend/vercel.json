@@ -7,6 +7,9 @@
     { "src": "/(.*)", "dest": "/server.js" }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "MONGO_URI": "mongodb+srv://pkg739895_db_user:2pBg5mcbJ3iwi8q4@cluster0.8bodnnw.mongodb.net/?appName=Cluster0",
+    "JWT_SECRET": "2c3b33d75f03fd84f913f463419758b685c407dd4e6f83153e0b691bdfd95340b38b5bfab9efebf2994ce8503782f389a91cdf9a8983cedd82bb62288174690d",
+    "JWT_EXPIRE": "7d"
   }
 }
