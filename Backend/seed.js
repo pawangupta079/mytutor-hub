@@ -14,7 +14,7 @@ const connectDB = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
-        console.log('MongoDB connected for seeding');
+        console.log('MongoDB connected for seeding          ');
     } catch (error) {
         console.error('Database connection failed:', error.message);
         process.exit(1);

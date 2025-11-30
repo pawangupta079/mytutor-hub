@@ -58,7 +58,7 @@ app.use(limiter);
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_URLS && process.env.FRONTEND_URLS.split(',').map(s => s.trim()),
-  'http://localhost:3000',
+  'https://mytutor-hub.onrender.com',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -204,8 +204,8 @@ app.use((err, req, res, next) => {
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`🚀 MyTutor API server is running on port ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📊 Health check: https://mytutor-hub.onrender.com/api/health`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
   });
 }
 

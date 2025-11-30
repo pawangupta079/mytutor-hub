@@ -22,7 +22,7 @@ interface TutorData {
     country: string;
   };
   profileImage: string;
-  
+
   // Step 2: Expertise
   subjects: Array<{
     subject: string;
@@ -45,7 +45,7 @@ interface TutorData {
     expiryDate: string;
   }>;
   languages: string[];
-  
+
   // Step 3: Pricing & Availability
   hourlyRate: number;
   generalAvailability: string;
@@ -107,7 +107,7 @@ export default function TutorRegistration() {
   const handleArrayInputChange = (field: string, index: number, childField: string, value: any) => {
     setTutorData(prev => ({
       ...prev,
-      [field]: (prev[field as keyof TutorData] as any[]).map((item: any, i: number) => 
+      [field]: (prev[field as keyof TutorData] as any[]).map((item: any, i: number) =>
         i === index ? { ...item, [childField]: value } : item
       )
     }));
@@ -150,6 +150,13 @@ export default function TutorRegistration() {
         // Ensure apiClient has the token
         apiClient.setToken(currentToken);
 
+        // Debug: Log token details
+        console.log('Token debug:', {
+          tokenLength: currentToken.length,
+          tokenStart: currentToken.substring(0, 20) + '...',
+          hasBearer: currentToken.startsWith('Bearer ')
+        });
+
         // Filter out empty data based on current step
         let dataToSend = { ...tutorData };
 
@@ -181,7 +188,9 @@ export default function TutorRegistration() {
         console.error('Error details:', {
           message: error.message,
           stack: error.stack,
-          name: error.name
+          name: error.name,
+          response: error.response?.data,
+          status: error.response?.status
         });
         setError(`Failed to save step data: ${error instanceof Error ? error.message : 'Unknown error'}`);
       } finally {
@@ -201,7 +210,7 @@ export default function TutorRegistration() {
     try {
       setIsLoading(true);
       setError('');
-      
+
       // Check if we have valid subjects
       const validSubjects = tutorData.subjects?.filter(s =>
         s.subject && s.subject.trim() !== '' &&
@@ -223,7 +232,7 @@ export default function TutorRegistration() {
       }
 
       const response = await apiClient.completeTutorRegistration(tutorData);
-      
+
       if (response.success) {
         setSuccess('Tutor registration completed successfully!');
         // Invalidate the tutors query to refresh the find-tutor page
@@ -241,7 +250,7 @@ export default function TutorRegistration() {
         response: error.response?.data,
         status: error.response?.status
       });
-      
+
       // Show more specific error message
       const errorMessage = error.response?.data?.message || error.message || 'Registration failed. Please try again.';
       setError(errorMessage);
@@ -479,8 +488,8 @@ export default function TutorRegistration() {
           maxLength={1000}
         />
         <p className="text-xs text-muted-foreground">{tutorData.experience.description.length}/1000 characters</p>
-              </div>
-              </div>
+      </div>
+    </div>
   );
 
   const renderStep3 = () => (
@@ -525,22 +534,22 @@ export default function TutorRegistration() {
           <p><strong>Name:</strong> {tutorData.fullName}</p>
           <p><strong>Location:</strong> {tutorData.location.city}, {tutorData.location.country}</p>
           <p><strong>Bio:</strong> {tutorData.bio || 'Not provided'}</p>
-              </div>
+        </div>
 
         <div className="p-4 border rounded-lg">
           <h4 className="font-medium mb-2">Subjects and Qualifications</h4>
           <p><strong>Subjects:</strong> {tutorData.subjects.map(s => `${s.subject} (${s.level})`).join(', ')}</p>
           <p><strong>Experience:</strong> {tutorData.experience.years} years</p>
           <p><strong>Qualifications:</strong> {tutorData.qualifications.map(q => `${q.degree} from ${q.institution} (${q.year})`).join(', ')}</p>
-              </div>
+        </div>
 
         <div className="p-4 border rounded-lg">
           <h4 className="font-medium mb-2">Rates and Availability</h4>
           <p><strong>Hourly Rate:</strong> ${tutorData.hourlyRate}</p>
           <p><strong>Availability:</strong> {tutorData.generalAvailability || 'Not specified'}</p>
-              </div>
-              </div>
-            </div>
+        </div>
+      </div>
+    </div>
   );
 
   const renderCurrentStep = () => {
@@ -587,8 +596,8 @@ export default function TutorRegistration() {
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep >= step.id 
-                    ? 'bg-primary border-primary text-white' 
+                  currentStep >= step.id
+                    ? 'bg-primary border-primary text-white'
                     : 'border-muted-foreground text-muted-foreground'
                 }`}>
                   {currentStep > step.id ? (
@@ -596,7 +605,7 @@ export default function TutorRegistration() {
                   ) : (
                     <span className="text-sm font-medium">{step.id}</span>
                   )}
-              </div>
+                </div>
                 <div className="ml-3 hidden sm:block">
                   <p className={`text-sm font-medium ${
                     currentStep >= step.id ? 'text-foreground' : 'text-muted-foreground'
@@ -604,7 +613,7 @@ export default function TutorRegistration() {
                     {step.title}
                   </p>
                   <p className="text-xs text-muted-foreground">{step.description}</p>
-              </div>
+                </div>
                 {index < steps.length - 1 && (
                   <div className={`hidden sm:block w-16 h-0.5 mx-4 ${
                     currentStep > step.id ? 'bg-primary' : 'bg-muted-foreground'
@@ -615,8 +624,8 @@ export default function TutorRegistration() {
           </div>
           <div className="mt-4">
             <Progress value={(currentStep / steps.length) * 100} className="h-2" />
-              </div>
-            </div>
+          </div>
+        </div>
 
         <Card className="card-modern shadow-modern-xl">
           <CardHeader>
@@ -641,28 +650,28 @@ export default function TutorRegistration() {
             {renderCurrentStep()}
 
             <div className="flex justify-between pt-6">
-            <Button
+              <Button
                 type="button"
-              variant="outline"
+                variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 1 || isLoading}
                 className="btn-modern"
-            >
+              >
                 <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
+                Back
+              </Button>
 
               {currentStep < 4 ? (
-              <Button
+                <Button
                   type="button"
                   onClick={handleNext}
                   disabled={!canProceed() || isLoading}
                   className="btn-modern gradient-primary text-white hover:shadow-lg hover:shadow-primary/25"
-              >
-                Next
+                >
+                  Next
                   <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            ) : (
+                </Button>
+              ) : (
                 <Button
                   type="button"
                   onClick={handleSubmit}
@@ -671,10 +680,10 @@ export default function TutorRegistration() {
                 >
                   {isLoading ? 'Submitting...' : 'Submit'}
                 </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

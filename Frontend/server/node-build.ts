@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 app.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
-  console.log(`🔧 API: http://localhost:${port}/api`);
+  console.log(`🔧 API: https://mytutor-hub.onrender.com/api`);
 });
 
 // Graceful shutdown

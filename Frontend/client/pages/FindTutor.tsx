@@ -171,7 +171,7 @@ export default function FindTutor() {
     <main className="container grid gap-8 py-10 md:grid-cols-[280px_1fr]">
       {!apiBase && (
         <div className="md:col-span-2 rounded border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
-          Warning: VITE_API_URL is not set. Set it in Frontend/.env to your backend URL (e.g., http://localhost:5000/api) and restart the dev server.
+          Warning: VITE_API_URL is not set. Set it in Frontend/.env to your backend URL (e.g., https://mytutor-hub.onrender.com/api) and restart the dev server.
         </div>
       )}
 

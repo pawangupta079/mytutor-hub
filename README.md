@@ -137,7 +137,7 @@ mytutor-hub/
    JWT_EXPIRE=7d
    PORT=5000
    NODE_ENV=development
-   FRONTEND_URL=http://localhost:3000
+   FRONTEND_URL=https://mytutor-hub.onrender.com
    STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
    STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
    STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
@@ -145,7 +145,7 @@ mytutor-hub/
 
    **Frontend Environment (.env)**
    ```env
-   VITE_API_URL=http://localhost:5000/api
+   VITE_API_URL=https://mytutor-hub.onrender.com/api
    VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
    ```
 
@@ -164,9 +164,9 @@ mytutor-hub/
    ```
 
 6. **Access the Application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5000/api
-   - API Health Check: http://localhost:5000/api/health
+   - Frontend: https://mytutor-hub.onrender.com
+   - Backend API: https://mytutor-hub.onrender.com/api
+   - API Health Check: https://mytutor-hub.onrender.com/api/health
 
 ## 📚 API Documentation
 
