@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
 import path from "path";
+import dotenv from "dotenv";
 
-// Server build configuration
+dotenv.config(); // ❤️ Now Vercel/Render envs are loaded
+
 export default defineConfig({
   build: {
     lib: {
@@ -15,7 +17,6 @@ export default defineConfig({
     ssr: true,
     rollupOptions: {
       external: [
-        // Node.js built-ins
         "fs",
         "path",
         "url",
@@ -29,7 +30,6 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies that should not be bundled
         "express",
         "cors",
       ],
@@ -38,7 +38,7 @@ export default defineConfig({
         entryFileNames: "[name].mjs",
       },
     },
-    minify: false, // Keep readable for debugging
+    minify: false,
     sourcemap: true,
   },
   resolve: {
@@ -47,7 +47,10 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
+
+  // ❤️ FIX: Push VITE_API_URL into SSR bundle
   define: {
     "process.env.NODE_ENV": '"production"',
+    "import.meta.env.VITE_API_URL": JSON.stringify(process.env.VITE_API_URL),
   },
 });
