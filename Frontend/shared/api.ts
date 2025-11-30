@@ -1,9 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mytutor-i2f5pwxhg-pawan-guptas-projects-46217623.vercel.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mytutor-hub.onrender.com/api';
 // Warn if using fallback base URL
 try {
   if (!import.meta.env.VITE_API_URL) {
     // eslint-disable-next-line no-console
-    console.warn('[api] VITE_API_URL not set; using fallback https://mytutor-i2f5pwxhg-pawan-guptas-projects-46217623.vercel.app/api');
+    console.warn('[api] VITE_API_URL not set; using fallback https://mytutor-hub.onrender.com/api');
   }
 } catch {
   // ignore if import.meta is not available in some tooling contexts
