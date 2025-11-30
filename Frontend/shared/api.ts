@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mytutor-hub.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 // Warn if using fallback base URL
 try {
   if (!import.meta.env.VITE_API_URL) {
