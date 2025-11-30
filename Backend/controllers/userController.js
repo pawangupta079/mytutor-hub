@@ -53,7 +53,7 @@ class UserController {
                 role,
                 phone: phone ? phone.trim() : undefined
             });
-
+// Save user to database
             console.log('Saving user to database');
             await user.save();
             console.log('User saved successfully');
