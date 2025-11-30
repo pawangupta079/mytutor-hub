@@ -201,12 +201,20 @@ app.use((err, req, res, next) => {
 // =======================
 // Run Locally (Only in Dev)
 // =======================
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`🚀 MyTutor API server is running on port ${PORT}`);
-    console.log(`📊 Health check: https://mytutor-hub.onrender.com/api/health`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
-  });
+// =======================
+// Server Start (Required for Render)
+// =======================
+
+
+app.listen(PORT, () => {
+  console.log(`🚀 MyTutor API server is running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+});
+
+
+
+
+
 }
 
 // =======================
