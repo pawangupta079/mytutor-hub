@@ -17,6 +17,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://mytutorx-hub.onrender.com/api"
+    "VITE_API_URL": "https://mytutor-hub.onrender.com/api"
   }
 }
