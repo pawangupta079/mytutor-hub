@@ -99,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken((response.data as any).token);
       }
       
+      
       return response;
     } catch (error) {
       console.error('Login error:', error);

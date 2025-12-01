@@ -17,6 +17,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://backend-j2jzy0260-pawan-guptas-projects-46217623.vercel.app/api"
+    "VITE_API_URL": "https://mytutorx-hub.onrender.com/api"
   }
 }
