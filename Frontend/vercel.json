@@ -15,8 +15,7 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_API_URL": "https://mytutor-hub.onrender.com/api"
-  }
+  ]
+
 }
+
