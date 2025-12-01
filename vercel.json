@@ -15,6 +15,6 @@
     "MONGO_URI": "mongodb+srv://pkg739895_db_user:2pBg5mcbJ3iwi8q4@cluster0.8bodnnw.mongodb.net/?appName=Cluster0",
     "JWT_SECRET": "your-super-secret-jwt-key-here",
     "JWT_EXPIRE": "7d",
-    "FRONTEND_URL": "https://your-frontend-url.vercel.app"
+    "FRONTEND_URL": "https://mytutor-hub.vercel.app/"
   }
 }
