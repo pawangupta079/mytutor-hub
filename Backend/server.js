@@ -8,6 +8,14 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
 require('dotenv').config();
+<<<<<<< HEAD
+=======
+
+// Log environment status
+console.log('Environment check - JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
+console.log('Environment check - MONGO_URI:', process.env.MONGO_URI ? 'SET' : 'NOT SET');
+console.log('Environment check - DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+>>>>>>> c7e254ee3ae5be17fdcf6ceadcca160981b3e398
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
